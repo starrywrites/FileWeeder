@@ -5,5 +5,7 @@
 INSTRUCTIONS:
 To run this program, run the StartGUI.java file.
 
-IMPORTANT NOTE:
-Although the program gives you the option to select and delete the root directory you initially chose to explore, DO NOT DO THIS. 
+KNOWN ISSUES:
+- Delete button will only delete files
+- GUI is a little rotton; resizing and general formatting issues abound
+- Placement of the delet button is a bit dangerous
