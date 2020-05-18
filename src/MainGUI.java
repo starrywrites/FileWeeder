@@ -43,7 +43,7 @@ public class MainGUI {
 
 		// Create new stage
 		Stage subStage = new Stage();
-		subStage.setTitle("File Hound");
+		subStage.setTitle("File Weeder");
 		
 		// Create a border pane
 		BorderPane pane = new BorderPane();
@@ -76,38 +76,35 @@ public class MainGUI {
 	
 	private HBox getHBox() {
 		
-		HBox hBox = new HBox(15);
-		hBox.setPadding(new Insets(15, 15, 15, 15));
-		hBox.setStyle("-fx-background-color: gold");
+		HBox hbox = new HBox(15);
+		hbox.setPadding(new Insets(15, 15, 15, 15));
+		hbox.setStyle("-fx-background-color: gold");
+		hbox.setMaxWidth(Double.MAX_VALUE);
+		hbox.setMaxHeight(Double.MAX_VALUE);
 		
 		Button viewFiles = new Button("View Files");
 		Button viewDirectories = new Button("View Directories");
-		Button delete = new Button("Delete Selection");
+		Button delete = new Button("Delete File");
 		
-		hBox.getChildren().add(viewFiles);
-		hBox.getChildren().add(viewDirectories);
-		hBox.getChildren().add(delete);
+		hbox.getChildren().add(viewFiles);
+		hbox.getChildren().add(viewDirectories);
+		hbox.getChildren().add(delete);
 
         viewFiles.setOnAction(eve-> loadFilesToTable());
         viewDirectories.setOnAction(eve-> loadDirsToTable());
         delete.setOnAction(eve-> {
     		ItemData row = myTableView.getSelectionModel().getSelectedItem(); // Get selected row in TableView
     		if (row != null) {
-    	   		if (tableIsFiles) {
-        			new ConfirmAndDelete(myTableView, row, fileArr);
-        			loadFilesToTable();
-        		}
-        		else {
-        			new ConfirmAndDelete(myTableView, row, dirArr);
-        			loadDirsToTable();
-        		}
+    			new ConfirmAndDelete(rootPath, myTableView, row, fileArr, dirArr);
+    	   		if (tableIsFiles) loadFilesToTable();
+        		else loadDirsToTable();
     		}
     		else {
     			System.out.println("Nothing selected.");
     		}
         });
 		
-		return hBox;
+		return hbox;
 	}
 	
 	private VBox getVBox() {
@@ -133,6 +130,8 @@ public class MainGUI {
 	    selectionModel.setSelectionMode(SelectionMode.SINGLE);
 
 	    VBox vbox = new VBox(myTableView);
+		vbox.setMaxWidth(Double.MAX_VALUE);
+		vbox.setMaxHeight(Double.MAX_VALUE);
 		
 		return vbox;
 	}

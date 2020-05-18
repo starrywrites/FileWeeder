@@ -8,19 +8,26 @@ import javafx.stage.Stage;
 public class StartGUI extends Application {
 	@Override public void start(Stage primaryStage) { // Override the start method in the Application class
 		
-		primaryStage.setTitle("FILE HOUND - Select Directory"); // Set the stage title
-		
+		// Create Directory chooser object and 
 		DirectoryChooser chooser = new DirectoryChooser();
-		chooser.setTitle("JavaFX Projects");
+		chooser.setTitle("FILE WEEDER: File Selection");
+		
+		// Opens chooser with base diectory
 		File defaultDirectory = new File("C:/Users");
 		chooser.setInitialDirectory(defaultDirectory);
+		
+		// Show Directory choices and allow user to select one
 		File selectedDirectory = chooser.showDialog(primaryStage);
 
 		try {
+			// If directory selected, enter main class
 			if (selectedDirectory != null) new MainGUI(selectedDirectory);
-			else new MainGUI(defaultDirectory);
+			// If no directory selected, close program
+			else {
+				System.out.println("Nothing selected. Program closing.");
+				System.exit(0);
+			}
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}

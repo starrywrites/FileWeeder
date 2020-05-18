@@ -1,4 +1,8 @@
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 import javafx.event.EventHandler;
@@ -15,6 +19,11 @@ import javafx.stage.WindowEvent;
 
 public class ConfirmAndDelete {
 	
+	private Path rootPath;
+	private ArrayList<ItemData> fileArr;
+	private ArrayList<ItemData> dirArr;
+	private String pathToDel;
+	
 	ConfirmAndDelete(String s) {
 		Stage popStage = new Stage();
 		popStage.setTitle("Deletion Confirmation");
@@ -29,7 +38,7 @@ public class ConfirmAndDelete {
 		
 		// Create box and message
 		HBox btnBox = new HBox();
-		btnBox.setAlignment(Pos.CENTER);		
+		btnBox.setAlignment(Pos.TOP_CENTER);		
 		Button btn = new Button("Ok");
 		btnBox.getChildren().add(btn);
 		btn.setOnAction(eve-> popStage.close());
@@ -50,31 +59,35 @@ public class ConfirmAndDelete {
 	      });
 	}
 	
-	ConfirmAndDelete(TableView<ItemData> tv, ItemData row, ArrayList<ItemData> arr) {
-		Stage popStage = new Stage();
-		popStage.setTitle("Deletion Confirmation");
-		
+	ConfirmAndDelete(Path rootPath, TableView<ItemData> tv, ItemData row, ArrayList<ItemData> fileArr, ArrayList<ItemData> dirArr) {
 		// Create a border pane
 		BorderPane popPane = new BorderPane();
 		
-		// Get id and path to be deleted
-		String pathString = row.getPath();
+		// Set class variables
+		this.rootPath = rootPath;
+		this.pathToDel = row.getPath();
+		this.dirArr = dirArr;
+		this.fileArr = fileArr;
 		
+		// Create stage
+		Stage popStage = new Stage();
+		popStage.setTitle("Deletion Confirmation");
+
 		// Create box and message
 		VBox messageBox = new VBox();
 		messageBox.setAlignment(Pos.CENTER);
 		messageBox.getChildren().add(new Text("Are you sure you want to delete this file?"));
-		messageBox.getChildren().add(new Text(pathString));
+		messageBox.getChildren().add(new Text(pathToDel));
 		
 		// Create box and message
 		HBox btnBox = new HBox();
-		btnBox.setAlignment(Pos.CENTER);		
+		btnBox.setAlignment(Pos.TOP_CENTER);		
 		Button btnYes = new Button("Yes");
 		Button btnNo = new Button("No");
 		btnBox.getChildren().add(btnYes);
 		btnBox.getChildren().add(btnNo);
 		btnYes.setOnAction(eve-> {
-			deleteFile(tv, row, arr, pathString);
+			deleteFile();
 			popStage.close();
 		});
 		btnNo.setOnAction(eve-> {
@@ -97,22 +110,41 @@ public class ConfirmAndDelete {
 	      });
 	}
 	
-	private void deleteFile (TableView<ItemData> tv, ItemData row, ArrayList<ItemData> arr, String s) {
+	private void deleteFile () {
   		// DELETE DATA FILES! BE CAREFUL!!!!! O.O
   		try {         
-  			File del = new File(s);  //file to be delete 
+  			File del = new File(pathToDel);  // File to be delete 
   			
   			if (!del.exists()) new ConfirmAndDelete("File or Folder does not exist.");
   			else if(del.delete()) {
-  				new ConfirmAndDelete("File or Folder was deleted.");  //getting and printing the file name
-  				tv.getItems().remove(row); // Remove row from the TableView
-  				arr.remove(arr.indexOf(row));
+  				new ConfirmAndDelete("File/Folder was deleted.");  //getting and printing the file name
+  				refreshArrays();
   			}  
-  			else new ConfirmAndDelete("File or Folder exists but is unable to be deleted.");
+  			else new ConfirmAndDelete("File/Folder exists but is unable to be deleted.");
   			
   		} catch(Exception e) {  
   		e.printStackTrace();  
   		}	
+	}
+	
+	private void refreshArrays() throws IOException {
+		// Create new CollectFiles object
+		CollectFiles newCollect = new CollectFiles();
+		
+		// Get all directories and files in provided path
+		Files.walkFileTree(rootPath, newCollect);
+		
+		// Get arraylists of current files and directories
+		ArrayList<ItemData> newFileArr = newCollect.getFileArray();
+		ArrayList<ItemData> newDirArr = newCollect.getDirArray();
+		
+		// Clear old lists
+		fileArr.clear();
+		dirArr.clear();
+		
+		// Set old arrays to new
+		fileArr.addAll(newFileArr);
+		dirArr.addAll(newDirArr);
 	}
 	
 	
